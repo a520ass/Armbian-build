@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
-        if: env.PACKAGED_STATUS == 'success' && !cancelled()
+        if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
           tag: Armbian_Aml_S905D_N1
           artifacts: phicomm-n1-armbian/output/images/*
