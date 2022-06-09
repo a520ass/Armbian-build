@@ -1,4 +1,4 @@
-name: Build N1 armbian
+name: Build N1 armbian GF
 
 on:
   repository_dispatch:
@@ -76,13 +76,13 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 https://github.com/a520ass/phicomm-n1-armbian.git
+          git clone --depth 1 -b v22.02 https://github.com/a520ass/build.git
 
       - name: Compile Armbian [ Board is arm-64 / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
         run: |
           # Compile method and parameter description: https://docs.armbian.com/Developer-Guide_Build-Options
-          cd phicomm-n1-armbian/
+          cd build/
           sudo chmod +x compile.sh
           sudo ./compile.sh \
           BOARD=arm-64 ARCH=arm64 \
@@ -99,8 +99,8 @@ jobs:
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
-          tag: Armbian_Aml_S905D_N1_${{ env.COMPILE_STARTINGTIME }}
-          artifacts: phicomm-n1-armbian/output/images/*
+          tag: Armbian_Aml_S905D_N1_GF_${{ env.COMPILE_STARTINGTIME }}
+          artifacts: build/output/images/*
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
