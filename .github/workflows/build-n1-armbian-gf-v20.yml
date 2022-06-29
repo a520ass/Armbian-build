@@ -1,9 +1,13 @@
-name: Build N1 armbian GF
+name: Build N1 armbian GF MESON64
 
 on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
+      set_git_branch:
+        description: "v20.08 / v20.11 / v22.02"
+        required: true
+        default: "v20.11"
       set_branch:
         description: "Branch: edge / current / legacy"
         required: false
@@ -76,16 +80,16 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 -b v22.02 https://github.com/a520ass/build.git
+          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/a520ass/build.git
 
-      - name: Compile Armbian [ Board is arm-64 / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
+      - name: Compile Armbian [ Board is MESON64 N1 / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
         run: |
           # Compile method and parameter description: https://docs.armbian.com/Developer-Guide_Build-Options
           cd build/
           sudo chmod +x compile.sh
           sudo ./compile.sh \
-          BOARD=arm-64 ARCH=arm64 \
+          BOARD=phicomm-n1 \
           BRANCH=${{ env.ARMBIAN_BRANCH }} \
           RELEASE=${{ env.ARMBIAN_RELEASE }} \
           BUILD_MINIMAL=no \
@@ -99,7 +103,7 @@ jobs:
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
-          tag: Armbian_Aml_S905D_N1_GF_${{ env.COMPILE_STARTINGTIME }}
+          tag: Armbian_Aml_S905D_N1_GF_MESON64_${{ env.COMPILE_STARTINGTIME }}
           artifacts: build/output/images/*
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
