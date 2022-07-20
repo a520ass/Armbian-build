@@ -104,7 +104,7 @@ jobs:
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
           tag: Armbian_Aml_S905D_N1_GF_MESON64_V22_${{ env.COMPILE_STARTINGTIME }}
-          artifacts: build/output/images/*
+          artifacts: build/output/images/*,build/output/debs/*
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
