@@ -4,6 +4,10 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
+      set_git_user:
+        description: "armbian / a520ass"
+        required: true
+        default: "armbian"
       set_git_branch:
         description: "v22.05 / v22.05.3 / v22.08"
         required: true
@@ -80,7 +84,7 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/armbian/build.git
+          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/${{ github.event.inputs.set_git_user }}/build.git
 
       - name: Compile Armbian [ Board is MESON64 S905X / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
