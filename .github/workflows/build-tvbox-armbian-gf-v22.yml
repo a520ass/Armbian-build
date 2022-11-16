@@ -1,13 +1,17 @@
-name: Build N1 armbian GF MESON64
+name: Build TVBOX armbian GF MESON64 V22
 
 on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      set_git_branch:
-        description: "v20.08 / v20.11 / v22.02"
+      set_git_user:
+        description: "armbian / a520ass"
         required: true
-        default: "v20.11"
+        default: "armbian"
+      set_git_branch:
+        description: "v22.05 / v22.05.3 / v22.08"
+        required: true
+        default: "v22.08"
       set_branch:
         description: "Branch: edge / current / legacy"
         required: false
@@ -15,7 +19,7 @@ on:
       set_release:
         description: "Release: jammy / focal / bullseye"
         required: false
-        default: "focal"
+        default: "jammy"
       set_desktop:
         description: "Build Desktop: no / gnome / xfce, etc."
         required: false
@@ -28,7 +32,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
@@ -41,7 +45,7 @@ jobs:
         run: |
           sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
           sudo -E apt-get -qq update
-          sudo -E apt-get -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2004_armbian)
+          sudo -E apt-get -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2204_armbian)
           sudo -E apt-get -qq autoremove --purge
           sudo -E apt-get -qq clean
           sudo timedatectl set-timezone "$TZ"
@@ -80,16 +84,16 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/a520ass/build.git
+          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/${{ github.event.inputs.set_git_user }}/build.git
 
-      - name: Compile Armbian [ Board is MESON64 N1 / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
+      - name: Compile Armbian [ Board is MESON64 TVBOX / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
         run: |
           # Compile method and parameter description: https://docs.armbian.com/Developer-Guide_Build-Options
           cd build/
           sudo chmod +x compile.sh
           sudo ./compile.sh \
-          BOARD=phicomm-n1 \
+          BOARD=aml-s9xx-box \
           BRANCH=${{ env.ARMBIAN_BRANCH }} \
           RELEASE=${{ env.ARMBIAN_RELEASE }} \
           BUILD_MINIMAL=no \
@@ -103,12 +107,12 @@ jobs:
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
-          tag: Armbian_Aml_S905D_N1_GF_MESON64_${{ env.COMPILE_STARTINGTIME }}
-          artifacts: build/output/images/*
+          tag: Armbian_Aml_TVBOX_GF_MESON64_V22_${{ env.COMPILE_STARTINGTIME }}
+          artifacts: build/output/images/*,build/output/debs/*
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            This is Armbian image for N1 box
+            This is Armbian image for TVBOX
             * Firmware information
             Default username: root
             Default password: 1234
