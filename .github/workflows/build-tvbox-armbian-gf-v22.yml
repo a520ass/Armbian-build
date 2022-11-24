@@ -7,11 +7,11 @@ on:
       set_git_user:
         description: "armbian / a520ass"
         required: true
-        default: "armbian"
+        default: "a520ass"
       set_git_branch:
-        description: "v22.05 / v22.05.3 / v22.08"
+        description: "v22.11 / v22.08"
         required: true
-        default: "v22.08"
+        default: "v22.11"
       set_branch:
         description: "Branch: edge / current / legacy"
         required: false
@@ -22,6 +22,10 @@ on:
         default: "jammy"
       set_desktop:
         description: "Build Desktop: no / gnome / xfce, etc."
+        required: false
+        default: "no"
+      set_kernel_only:
+        description: "KERNEL_ONLY: no / yes"
         required: false
         default: "no"
   #schedule:
@@ -98,7 +102,7 @@ jobs:
           RELEASE=${{ env.ARMBIAN_RELEASE }} \
           BUILD_MINIMAL=no \
           ${{ env.ARMBIAN_DESKTOP_STR }} \
-          KERNEL_ONLY=no \
+          KERNEL_ONLY=${{ github.event.inputs.set_kernel_only }} \
           KERNEL_CONFIGURE=no \
           COMPRESS_OUTPUTIMAGE=sha,gz
           echo "::set-output name=status::success"
