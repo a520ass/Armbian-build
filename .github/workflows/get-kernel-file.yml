@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload file to Release
         uses: ncipollo/release-action@main
-        if: steps.compile.outputs.status == 'success' && !cancelled()
+        if: steps.getkernel.outputs.status == 'success' && !cancelled()
         with:
           tag: Armbian_Kernel_${{ env.COMPILE_STARTINGTIME }}
           artifacts: /workdir/*
