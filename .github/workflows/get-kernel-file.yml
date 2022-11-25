@@ -41,12 +41,21 @@ jobs:
       - name: get Armbian Kernel
         id: getkernel
         run: |
-          #https://github.com/a520ass/Armbian-build/releases/download/Armbian_Aml_TVBOX_GF_MESON64_V22_11.24.1948/Armbian_22.11.0_Aml-s9xx-box_jammy_edge_6.0.9.img.gz
           httpurl=${{ github.event.inputs.set_armbian_file }}
+          
           file=${httpurl##*/}
-          gzip -d ${file}
-          # 替换文件名
-          img=${file/img.gz/img}
+          img=${file}
+          if [ "${file##*.}"x = "gz"x ];then
+            gzip -d ${file}
+            # 替换文件名
+            img=${file/img.gz/img}
+          fi
+          if [ "${file##*.}"x = "xz"x ];then
+            xz -d ${file}
+            # 替换文件名
+            img=${file/img.xz/img}
+          fi
+          
           loopname=`sudo losetup -P -f --show ${img}`
           mountname=${loopname//dev/mnt}
           sudo mkdir -p ${mountname}
@@ -72,4 +81,5 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
+            Armbian:${{ github.event.inputs.set_armbian_file }}
             This is Armbian kernel image
