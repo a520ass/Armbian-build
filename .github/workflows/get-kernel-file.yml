@@ -46,7 +46,10 @@ jobs:
         id: getkernel
         run: |
           httpurl=${{ github.event.inputs.set_armbian_file }}
-          img=${httpurl##*/}
+          file=${httpurl##*/}
+          gzip -d ${file}
+          # 替换文件名
+          img=${file/img.gz/img}
           loopname=`losetup -P -f --show ${img}`
           mountname=${loopname//dev/mnt}
           mkdir -p ${mountname}
