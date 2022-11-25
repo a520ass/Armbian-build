@@ -28,10 +28,6 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -qq update
-          sudo -E apt-get -qq install -y $(curl -fsSL https://is.gd/depend_ubuntu2204_armbian)
-          sudo -E apt-get -qq autoremove --purge
-          sudo -E apt-get -qq clean
           sudo timedatectl set-timezone "$TZ"
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
@@ -45,18 +41,19 @@ jobs:
       - name: get Armbian Kernel
         id: getkernel
         run: |
+          #https://github.com/a520ass/Armbian-build/releases/download/Armbian_Aml_TVBOX_GF_MESON64_V22_11.24.1948/Armbian_22.11.0_Aml-s9xx-box_jammy_edge_6.0.9.img.gz
           httpurl=${{ github.event.inputs.set_armbian_file }}
           file=${httpurl##*/}
           gzip -d ${file}
           # 替换文件名
           img=${file/img.gz/img}
-          loopname=`losetup -P -f --show ${img}`
+          loopname=`sudo losetup -P -f --show ${img}`
           mountname=${loopname//dev/mnt}
-          mkdir -p ${mountname}
-          mkdir -p ${mountname}/boot
+          sudo mkdir -p ${mountname}
+          sudo mkdir -p ${mountname}/boot
 
-          mount ${loopname}p2 ${mountname}
-          mount ${loopname}p1 ${mountname}/boot
+          sudo mount ${loopname}p2 ${mountname}
+          sudo mount ${loopname}p1 ${mountname}/boot
 
           echo "${mountname}/boot"
 
