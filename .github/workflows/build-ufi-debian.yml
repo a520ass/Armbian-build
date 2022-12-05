@@ -58,11 +58,12 @@ jobs:
           make include/config/kernel.release
           make -j$(nproc)
           fakeroot make-kpkg  --initrd --cross-compile aarch64-linux-gnu- --arch arm64  kernel_image kernel_headers
+          # kernel
           cp arch/arm64/boot/Image.gz /workdir
           # dtb
           tar -czf /workdir/linux-dtbs.tar.gz arch/arm64/boot/dts/qcom/*
-          # src
-          tar -czf /workdir/linux-src.tar.gz *
+          # kernel-dtb
+          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dtb > /workdir/ufi001c-kernel-dtb
           # linux-headers linux-image
           cd ..
           tar -czf /workdir/linux-debs.tar.gz linux-*.deb
