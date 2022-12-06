@@ -46,6 +46,13 @@ jobs:
         run: |
           git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/${{ github.event.inputs.set_git_repo }}.git linux
 
+      - name: Patch ufi
+        id: patch
+        run: |
+          cd linux/
+          git apply ../patch/ufi/ufi.patch
+          cp ../patch/ufi/msm8916_defconfig arch/arm64/configs/msm8916_defconfig
+
       - name: Compile
         id: compile
         run: |
