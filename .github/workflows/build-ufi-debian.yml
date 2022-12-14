@@ -71,6 +71,7 @@ jobs:
           tar -czf /workdir/linux-dtbs.tar.gz arch/arm64/boot/dts/qcom/*
           # kernel-dtb
           cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dtb > /workdir/ufi001c-kernel-dtb
+          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dtb > /workdir/ufiw001-kernel-dtb
           # linux-headers linux-image
           cd ..
           tar -czf /workdir/linux-debs.tar.gz linux-*.deb

@@ -1,11 +1,12 @@
 diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-index 0e1119c34..6323df7a2 100644
+index b06d02fca52..72e46b24585 100644
 --- a/arch/arm64/boot/dts/qcom/Makefile
 +++ b/arch/arm64/boot/dts/qcom/Makefile
-@@ -1,4 +1,8 @@
+@@ -1,4 +1,9 @@
  # SPDX-License-Identifier: GPL-2.0
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-handsome-openstick-ufi001b.dtb
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-handsome-openstick-ufi001c.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-handsome-openstick-ufiw001.dtb
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-handsome-openstick-sp970.dtb
 +dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-handsome-openstick-uz801.dtb
  dtb-$(CONFIG_ARCH_QCOM)	+= apq8016-samsung-gtelwifiue.dtb
@@ -13,7 +14,7 @@ index 0e1119c34..6323df7a2 100644
  dtb-$(CONFIG_ARCH_QCOM)	+= apq8016-sbc.dtb
 diff --git a/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-common.dtsi b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-common.dtsi
 new file mode 100644
-index 000000000..195804634
+index 00000000000..19580463462
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-common.dtsi
 @@ -0,0 +1,210 @@
@@ -229,7 +230,7 @@ index 000000000..195804634
 +};
 diff --git a/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-sp970.dts b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-sp970.dts
 new file mode 100644
-index 000000000..724d5edef
+index 00000000000..724d5edefe0
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-sp970.dts
 @@ -0,0 +1,84 @@
@@ -319,7 +320,7 @@ index 000000000..724d5edef
 +};
 diff --git a/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001b.dts b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001b.dts
 new file mode 100644
-index 000000000..beade9af8
+index 00000000000..beade9af83e
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001b.dts
 @@ -0,0 +1,89 @@
@@ -414,7 +415,7 @@ index 000000000..beade9af8
 +};
 diff --git a/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dts b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dts
 new file mode 100644
-index 000000000..cf12c2c09
+index 00000000000..cf12c2c0906
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dts
 @@ -0,0 +1,101 @@
@@ -519,9 +520,122 @@ index 000000000..cf12c2c09
 +		bias-pull-up;
 +	};
 +};
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dts b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dts
+new file mode 100644
+index 00000000000..0f868fd32dd
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dts
+@@ -0,0 +1,107 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2021-2022 HandsomeYingyan <handsomeyingyan@gmail.com>
++ *
++ */
++ 
++/dts-v1/;
++#include "msm8916-handsome-openstick-common.dtsi"
++
++/ {
++	model = "Handsome OpenStick UFIW001";
++	compatible = "handsome,openstick", "qcom,msm8916";
++
++	gpio-keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		autorepeat;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&gpio_keys_default>;
++		label = "GPIO Buttons";
++
++		reset {
++			label = "Restart";
++			gpios = <&msmgpio 37 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++		};
++	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&msmgpio_leds>;
++
++		compatible = "gpio-leds";
++
++		blue {
++			label = "blue:wifi_tx";
++			gpios = <&msmgpio 20 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "phy0tx";
++			default-state = "off";
++		};
++
++		green {
++			label = "green:os";
++			gpios = <&msmgpio 21 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++
++		red {
++			label = "red:mmc0_rw";
++			gpios = <&msmgpio 22 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "mmc0";
++			default-state = "on";
++		};
++
++
++		esim1_sel {
++			label = "esim1:sel";
++			gpios = <&msmgpio 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		sim_en {
++			label = "sim:en";
++			gpios = <&msmgpio 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		sim_sel {
++			label = "sim:sel";
++			gpios = <&msmgpio 2 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++
++		esim2_sel {
++			label = "esim2:sel";
++			gpios = <&msmgpio 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		ftm_st {
++			label = "ftm_st";
++			gpios = <&msmgpio 36 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++	};
++};
++
++&msmgpio {
++	msmgpio_leds: msmgpio-leds {
++		pins = "gpio0","gpio1","gpio2","gpio3","gpio20","gpio21","gpio22","gpio36";
++		function = "gpio";
++
++		bias-disabled;
++	};
++
++	gpio_keys_default: gpio_keys_default {
++		pins = "gpio37";
++		function = "gpio";
++
++		drive-strength = <8>;
++		input-enable;
++		bias-pull-up;
++	};
++};
 diff --git a/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-uz801.dts b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-uz801.dts
 new file mode 100644
-index 000000000..f3fe8cbc0
+index 00000000000..f3fe8cbc064
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-uz801.dts
 @@ -0,0 +1,76 @@
