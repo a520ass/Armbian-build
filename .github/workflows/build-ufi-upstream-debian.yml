@@ -1,0 +1,86 @@
+name: Build UFI upstream debian
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      set_git_branch:
+        description: "branch"
+        required: true
+        default: "linux-5.15.y"
+  #schedule:
+    #- cron: "0 17 * * 0"
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install -y binfmt-support qemu-user-static gcc-10-aarch64-linux-gnu kernel-package fakeroot simg2img img2simg mkbootimg bison flex gcc-aarch64-linux-gnu pkg-config libncurses-dev libssl-dev unzip git
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "COMPILE_STARTINGTIME=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
+
+      - name: Download source code
+        id: down
+        run: |
+          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git linux
+
+      - name: Patch ufi upsteam
+        id: patch
+        run: |
+          cd linux/
+          git apply ../patch/ufi_upstream/ufi_upstream.patch
+          git apply ../patch/ufi_upstream/ufi.patch
+          cp ../patch/ufi_upstream/msm8916_defconfig arch/arm64/configs/msm8916_defconfig
+
+      - name: Compile
+        id: compile
+        run: |
+          cd linux/
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
+          make msm8916_defconfig
+          echo -e "$(nproc) thread compile"
+          export LOCALVERSION=-msm8916
+          make include/config/kernel.release
+          make -j$(nproc)
+          fakeroot make-kpkg  --initrd --cross-compile aarch64-linux-gnu- --arch arm64  kernel_image kernel_headers
+          # kernel
+          cp arch/arm64/boot/Image.gz /workdir
+          # dtb
+          tar -czf /workdir/linux-dtbs.tar.gz arch/arm64/boot/dts/qcom/*
+          # kernel-dtb
+          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dtb > /workdir/ufi001c-kernel-dtb
+          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dtb > /workdir/ufiw001-kernel-dtb
+          # linux-headers linux-image
+          cd ..
+          tar -czf /workdir/linux-debs.tar.gz linux-*.deb
+          echo "::set-output name=status::success"
+
+      - name: Upload image to Release
+        uses: ncipollo/release-action@main
+        if: steps.compile.outputs.status == 'success' && !cancelled()
+        with:
+          tag: UFI_Debian_${{ env.COMPILE_STARTINGTIME }}
+          artifacts: /workdir/*
+          allowUpdates: true
+          token: ${{ secrets.GH_TOKEN }}
+          body: |
+            This is UFI upstream
