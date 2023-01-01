@@ -54,11 +54,11 @@ jobs:
           mkdir linux
           tar -C linux -xJf data.tar.xz
           cd linux
+          mv usr/src/linux-source*.tar.xz .
+          tar -xJf linux-source*.tar.xz
           git apply ../patch/armbian/${{ github.event.inputs.set_kernel_version_patch }}/*.patch
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
-          pwd
-          ls -alF
           make dtbs
           tar -czf /workdir/linux-dtbs.tar.gz arch/arm64/boot/dts/amlogic/*
           echo "::set-output name=status::success"
