@@ -50,7 +50,7 @@ jobs:
         id: build
         run: |
           httpurl=${{ github.event.inputs.set_kernel_src_file }}
-          ar linux-source.deb
+          ar -xv linux-source.deb
           mkdir linux
           tar -C linux -xJf data.tar.xz
           cd linux
