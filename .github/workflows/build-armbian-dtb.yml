@@ -56,7 +56,14 @@ jobs:
           cd linux
           mv usr/src/linux-source*.tar.xz .
           tar -xJf linux-source*.tar.xz
-          git apply ../patch/armbian/${{ github.event.inputs.set_kernel_version_patch }}/*.patch
+          ## git apply 
+          for patch in `find ../patch/armbian/${{ github.event.inputs.set_kernel_version_patch }}/*.patch | LC_ALL=C sort -u`
+          do
+              # detect and remove files which patch will create
+              lsdiff -s --strip=1 "${patch}" | grep '^+' | awk '{print $2}' | xargs -I % sh -c 'rm -f %'
+              echo "Processing file $patch"
+              patch --batch --silent -p1 -N < "${patch}"
+          done
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
           make dtbs
@@ -72,5 +79,5 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            Kernel src:${{ github.event.inputs.set_armbian_file }}
+            Kernel src:${{ github.event.inputs.set_kernel_src_file }}
             This is Armbian dtb image

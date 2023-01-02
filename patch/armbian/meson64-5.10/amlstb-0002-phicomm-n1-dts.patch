@@ -1,0 +1,78 @@
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dts
+index b2ab05c22090..f025109f253c 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dts
+@@ -86,8 +86,7 @@ external_phy: ethernet-phy@0 {
+ 		reset-gpios = <&gpio GPIOZ_14 GPIO_ACTIVE_LOW>;
+ 
+ 		interrupt-parent = <&gpio_intc>;
+-		interrupts = <29 IRQ_TYPE_LEVEL_LOW>;
+-		eee-broken-1000t;
++		interrupts = <25 IRQ_TYPE_LEVEL_LOW>;
+ 	};
+ };
+ 
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dts
+index 9ef210f17b4a..6eefa54604d1 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dts
+@@ -24,6 +24,25 @@ status {
+ 			default-state = "on";
+ 		};
+ 	};
++
++	dc_in: regulator-vcc_12v {
++			compatible = "regulator-fixed";
++			regulator-name = "VCC_12V";
++			regulator-min-microvolt = <12000000>;
++			regulator-max-microvolt = <12000000>;
++			regulator-boot-on;
++			regulator-always-on;
++	};
++
++	vddgpu: regulator-vddgpu {
++			compatible = "regulator-fixed";
++			regulator-name = "mali";
++			regulator-min-microvolt = <950000>;
++			regulator-max-microvolt = <950000>;
++			vin-supply = <&dc_in>;
++			regulator-boot-on;
++			regulator-always-on;
++	};
+ };
+ 
+ &cvbs_vdac_port {
+@@ -33,3 +52,33 @@ &cvbs_vdac_port {
+ &usb {
+ 	dr_mode = "host";
+ };
++
++&sd_emmc_a {
++	max-frequency = <100000000>;
++	sd-uhs-sdr50;
++};
++
++&sd_emmc_b {
++	status = "disabled";
++};
++
++&ethmac {
++	snps,aal;
++	snps,txpbl = <0x8>;
++	snps,rxpbl = <0x8>;
++};
++
++&uart_A {
++	status = "okay";
++	pinctrl-0 = <&uart_a_pins>, <&uart_a_cts_rts_pins>;
++	pinctrl-names = "default";
++	uart-has-rtscts;
++
++	bluetooth {
++		compatible = "brcm,bcm43438-bt";
++		shutdown-gpios = <&gpio GPIOX_17 GPIO_ACTIVE_HIGH>;
++		max-speed = <2000000>;
++		clocks = <&wifi32k>;
++		clock-names = "lpo";
++	};
++};
