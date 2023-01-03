@@ -7,11 +7,15 @@ on:
       set_git_repo:
         description: "repo"
         required: true
-        default: "a520ass/linux-ufi"
+        default: "msm8916-mainline/linux"
       set_git_branch:
         description: "branch"
         required: true
-        default: "master"
+        default: "old/msm8916/5.15"
+      set_ufi_patch_version:
+        description: "ufi_patch_version"
+        required: true
+        default: "ufi"  
   #schedule:
     #- cron: "0 17 * * 0"
 
@@ -41,17 +45,32 @@ jobs:
           sudo chown $USER:$GROUPS /workdir
           echo "COMPILE_STARTINGTIME=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
 
+          set_git_url="https://github.com/${{ github.event.inputs.set_git_repo }}.git"
+          set_git_repo="${{ github.event.inputs.set_git_repo }}"
+          if  [[ -z "${set_git_repo}" && "linux" == "${set_git_repo}" ]]; then
+              set_git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+          fi
+          echo "LINUX_GITURL=${set_git_url}" >> $GITHUB_ENV
+
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} https://github.com/${{ github.event.inputs.set_git_repo }}.git linux
+          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} ${{ env.LINUX_GITURL }} linux
 
       - name: Patch ufi
         id: patch
         run: |
           cd linux/
-          git apply ../patch/ufi/ufi.patch
-          cp ../patch/ufi/msm8916_defconfig arch/arm64/configs/msm8916_defconfig
+          ## git apply 
+          ## git apply 
+          for patch in `find ../patch/${{ github.event.inputs.set_ufi_patch_version }}/*.patch | LC_ALL=C sort -u`
+          do
+              # detect and remove files which patch will create
+              lsdiff -s --strip=1 "${patch}" | grep '^+' | awk '{print $2}' | xargs -I % sh -c 'rm -f %'
+              echo "Processing file $patch"
+              patch --batch --silent -p1 -N < "${patch}"
+          done
+          cp ../patch/${{ github.event.inputs.set_ufi_patch_version }}/msm8916_defconfig arch/arm64/configs/msm8916_defconfig
 
       - name: Compile
         id: compile
@@ -63,7 +82,6 @@ jobs:
           echo -e "$(nproc) thread compile"
           export LOCALVERSION=-msm8916
           make include/config/kernel.release
-          make -j$(nproc)
           make deb-pkg -j$(nproc)
           # fakeroot make-kpkg  --initrd --cross-compile aarch64-linux-gnu- --arch arm64  kernel_image kernel_headers
           # kernel
@@ -87,4 +105,4 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            This is UFI
+            This is UFI ${{ env.LINUX_GITURL }}
