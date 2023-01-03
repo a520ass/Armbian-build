@@ -1,0 +1,46 @@
+From 0fc16bf5567ec5a50e9c00375291d274310f64a0 Mon Sep 17 00:00:00 2001
+From: SteeManMI <36392828+SteeManMI@users.noreply.github.com>
+Date: Wed, 28 Dec 2022 11:27:14 -0500
+Subject: [PATCH] Fix the last reference for old bootscreen to plymouth (#4622)
+
+This fix impacts all boards that use extlinux.conf
+I have tested the aml-s9xx-box build to ensure that this works as expected.
+I think the only other boards that use extlinux.conf are those under
+the media kernel
+
+In testing I realized that I needed to add SRC_CMDLINE to the aml-s9xx-box
+config file to get the correct append line added to the extlinux.conf file
+
+ Changes to be committed:
+	modified:   config/boards/aml-s9xx-box.tvb
+	modified:   config/sources/common.conf
+---
+ config/boards/aml-s9xx-box.tvb | 1 +
+ config/sources/common.conf     | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/config/boards/aml-s9xx-box.tvb b/config/boards/aml-s9xx-box.tvb
+index 7bcb02e1d..7563928d0 100644
+--- a/config/boards/aml-s9xx-box.tvb
++++ b/config/boards/aml-s9xx-box.tvb
+@@ -9,3 +9,4 @@ SERIALCON="ttyAML0"
+ FULL_DESKTOP="yes"
+ ASOUND_STATE="asound.state.mesongx"
+ BOOT_LOGO="desktop"
++SRC_CMDLINE='rootflags=data=writeback console=ttyAML0,115200n8 console=tty0'
+diff --git a/config/sources/common.conf b/config/sources/common.conf
+index 1312e4ebe..c804d26a6 100644
+--- a/config/sources/common.conf
++++ b/config/sources/common.conf
+@@ -1,7 +1,7 @@
+ #!/bin/bash
+ 
+ export FAST_CREATE_IMAGE='yes'
+-export MAIN_CMDLINE='rw no_console_suspend consoleblank=0 fsck.fix=yes fsck.repair=yes net.ifnames=0 bootsplash.bootfile=bootsplash.armbian'
++export MAIN_CMDLINE='rw no_console_suspend consoleblank=0 fsck.fix=yes fsck.repair=yes net.ifnames=0 splash plymouth.ignore-serial-consoles'
+ 
+ # boot loader configuration
+ [[ -z $BOOTSOURCE ]]         && export BOOTSOURCE="$MAINLINE_UBOOT_SOURCE"
+-- 
+2.34.1
+

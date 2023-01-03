@@ -1,0 +1,28 @@
+From c92c7e5cb90fd9e5f0d050936b98d56917e1e56a Mon Sep 17 00:00:00 2001
+From: SteeManMI <36392828+SteeManMI@users.noreply.github.com>
+Date: Tue, 29 Nov 2022 13:47:50 -0500
+Subject: [PATCH] Fix the amlogic tvbox build's extlinux.conf to use uImage for
+ the kernel (#4509)
+
+image file instead of Image as some of the included uboot files do not support the Image format and require the uImage.
+
+ Changes to be committed:
+	modified:   packages/bsp/aml-s9xx-box/boot/extlinux/extlinux.conf
+---
+ packages/bsp/aml-s9xx-box/boot/extlinux/extlinux.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/bsp/aml-s9xx-box/boot/extlinux/extlinux.conf b/packages/bsp/aml-s9xx-box/boot/extlinux/extlinux.conf
+index 72ad3a929..03c864a5c 100644
+--- a/packages/bsp/aml-s9xx-box/boot/extlinux/extlinux.conf
++++ b/packages/bsp/aml-s9xx-box/boot/extlinux/extlinux.conf
+@@ -1,5 +1,5 @@
+ LABEL Armbian
+-LINUX /Image
++LINUX /uImage
+ INITRD /uInitrd
+ 
+ #FDT /dtb/amlogic/meson-gxbb-p200.dtb
+-- 
+2.34.1
+
