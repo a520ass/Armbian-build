@@ -47,7 +47,7 @@ jobs:
 
           set_git_url="https://github.com/${{ github.event.inputs.set_git_repo }}.git"
           set_git_repo="${{ github.event.inputs.set_git_repo }}"
-          if  [[ -z "${set_git_repo}" && "linux" == "${set_git_repo}" ]]; then
+          if  [[ "linux" = "${set_git_repo}" ]]; then
               set_git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
           fi
           echo "LINUX_GITURL=${set_git_url}" >> $GITHUB_ENV
