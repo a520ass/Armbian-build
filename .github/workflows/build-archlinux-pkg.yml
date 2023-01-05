@@ -54,7 +54,7 @@ jobs:
         with:
           docker-image: menci/aur-builder:archlinux
           platform: linux/arm64
-          pkgbuild-directory: $GITHUB_WORKSPACE/archpkgsrc/linux-meson64
+          pkgbuild-directory: ${{ github.workspace }}/archpkgsrc/linux-meson64
           target-directory: /workdir
 
       - name: Build
