@@ -1,0 +1,76 @@
+name: Build ArchLinux PKG
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        description: 'REPO URL'
+        required: true
+        default: 'https://github.com/a520ass/N1-PKGBUILD'
+      repo_branch:
+        description: 'REPO BRANCH'
+        required: true
+        default: 'main'
+  #schedule:
+    #- cron: "0 17 * * 0"
+
+env:
+  REPO_URL: ${{ inputs.repo_url }}
+  REPO_BRANCH: ${{ inputs.repo_branch }}
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install -y wget git
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "COMPILE_STARTINGTIME=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
+
+      - name: Download src
+        id: down
+        run: |
+          git clone --depth 1 -b $REPO_BRANCH $REPO_URL archpkgsrc
+
+      - name: Build Arch Linux Package
+        id: build archlinuxpkg
+        uses: Menci/build-archlinux-package@main
+        with:
+          platform: linux/arm64
+          pkgbuild-directory: archpkgsrc/linux-meson64
+          target-directory: /workdir
+
+      - name: Build
+        id: build
+        run: |
+          cd /workdir
+          ls -alF
+          echo "::set-output name=status::success"
+
+      - name: Upload file to Release
+        uses: ncipollo/release-action@main
+        if: steps.build.outputs.status == 'success' && !cancelled()
+        with:
+          tag: Arch_Linux_Package_${{ env.COMPILE_STARTINGTIME }}
+          artifacts: /workdir/*
+          allowUpdates: true
+          token: ${{ secrets.GH_TOKEN }}
+          body: |
+            src:${{ github.event.inputs.set_kernel_src_file }}
+            This is Arch Linux Package
