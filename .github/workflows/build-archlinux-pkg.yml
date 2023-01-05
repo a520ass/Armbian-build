@@ -49,7 +49,7 @@ jobs:
           git clone --depth 1 -b $REPO_BRANCH $REPO_URL archpkgsrc
 
       - name: Build Arch Linux Package
-        id: build archlinuxpkg
+        id: build_archlinuxpkg
         uses: Menci/build-archlinux-package@main
         with:
           platform: linux/arm64
