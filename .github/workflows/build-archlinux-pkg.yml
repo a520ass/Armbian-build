@@ -48,6 +48,9 @@ jobs:
         run: |
           git clone --depth 1 -b $REPO_BRANCH $REPO_URL archpkgsrc
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
       - name: Build Arch Linux Package
         id: build_archlinuxpkg
         uses: Menci/build-archlinux-package@main
