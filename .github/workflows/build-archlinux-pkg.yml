@@ -7,17 +7,27 @@ on:
       repo_url:
         description: 'REPO URL'
         required: true
-        default: 'https://github.com/a520ass/N1-PKGBUILD'
+        default: 'https://github.com/a520ass/alarm-pkg'
       repo_branch:
         description: 'REPO BRANCH'
         required: true
         default: 'main'
+      pkgbuild_directory:
+        description: 'pkgbuild_directory'
+        required: false
+        default: ''
+      pkgbuild_platform:
+        description: 'pkgbuild_platform'
+        required: true
+        default: 'linux/arm64'
   #schedule:
     #- cron: "0 17 * * 0"
 
 env:
   REPO_URL: ${{ inputs.repo_url }}
   REPO_BRANCH: ${{ inputs.repo_branch }}
+  PKGBUILD_DIR: ${{ inputs.pkgbuild_directory }}
+  ARCH_PLATFORM: ${{ inputs.pkgbuild_platform }}
   TZ: Asia/Shanghai
 
 jobs:
@@ -41,23 +51,24 @@ jobs:
           sudo timedatectl set-timezone "$TZ"
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
-          echo "COMPILE_STARTINGTIME=$(date +"%m.%d.%H%M")" >> $GITHUB_ENV
+          echo "COMPILE_STARTINGTIME=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
 
-      - name: Download src
+      - name: Download source code
         id: down
         run: |
           git clone --depth 1 -b $REPO_BRANCH $REPO_URL archpkgsrc
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
+        if: env.ARCH_PLATFORM == 'linux/arm64'
 
       - name: Build Arch Linux Package
         id: build_archlinuxpkg
         uses: Menci/build-archlinux-package@main
         with:
           docker-image: menci/aur-builder:archlinux
-          platform: linux/arm64
-          pkgbuild-directory: ${{ github.workspace }}/archpkgsrc/linux-meson64
+          platform: ${{ env.ARCH_PLATFORM }}
+          pkgbuild-directory: ${{ github.workspace }}/archpkgsrc/${{ env.PKGBUILD_DIR }}
           target-directory: /workdir
 
       - name: Build
