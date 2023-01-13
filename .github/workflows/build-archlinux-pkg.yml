@@ -7,7 +7,7 @@ on:
       repo_url:
         description: 'REPO URL'
         required: true
-        default: 'https://github.com/a520ass/alarm-pkg'
+        default: 'https://github.com/a520ass/alarm-pkg.git'
       repo_branch:
         description: 'REPO BRANCH'
         required: true
@@ -34,7 +34,9 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     if: github.event.repository.owner.id == github.event.sender.id
-
+    strategy:
+      matrix:
+        pkgbuild_platform: [linux/arm64, linux/amd64]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -60,14 +62,14 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-        if: env.ARCH_PLATFORM == 'linux/arm64'
+        if: matrix.pkgbuild_platform == 'linux/arm64'
 
       - name: Build Arch Linux Package
         id: build_archlinuxpkg
         uses: Menci/build-archlinux-package@main
         with:
           docker-image: menci/aur-builder:archlinux
-          platform: ${{ env.ARCH_PLATFORM }}
+          platform: ${{ matrix.pkgbuild_platform }}
           pkgbuild-directory: ${{ github.workspace }}/archpkgsrc/${{ env.PKGBUILD_DIR }}
           target-directory: /workdir
 
@@ -87,5 +89,5 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            src:${{ github.event.inputs.set_kernel_src_file }}
+            src:${{ env.REPO_URL }}/${{ env.PKGBUILD_DIR }}#${{ env.REPO_BRANCH }}
             This is Arch Linux Package
