@@ -70,11 +70,11 @@ jobs:
               echo "Processing file $patch"
               patch --batch --silent -p1 -N < "${patch}"
               if [ $? -eq 0 ]
-	            then
+              then
                   echo "<== [S] patch file $patch"
               else
               	  echo "<== [F] patch file $patch"	
-	            fi
+              fi
           done
           cp ../patch/${{ github.event.inputs.set_ufi_patch_version }}/msm8916_defconfig arch/arm64/configs/msm8916_defconfig
 
