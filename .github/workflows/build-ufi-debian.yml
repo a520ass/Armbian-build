@@ -11,11 +11,11 @@ on:
       set_git_branch:
         description: "branch"
         required: true
-        default: "old/msm8916/5.15"
+        default: "msm8916/6.1"
       set_ufi_patch_version:
         description: "ufi_patch_version"
         required: true
-        default: "ufi"  
+        default: "ufi_61"
   #schedule:
     #- cron: "0 17 * * 0"
 
@@ -87,13 +87,14 @@ jobs:
           # kernel
           cp arch/arm64/boot/Image.gz /workdir
           # dtb
-          tar -czf /workdir/linux-dtbs.tar.gz arch/arm64/boot/dts/qcom/*
+          #tar -czf /workdir/linux-dtbs.tar.gz arch/arm64/boot/dts/qcom/*
           # kernel-dtb
-          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dtb > /workdir/ufi001c-kernel-dtb
-          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dtb > /workdir/ufiw001-kernel-dtb
+          #cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufi001c.dtb > /workdir/ufi001c-kernel-dtb
+          #cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-handsome-openstick-ufiw001.dtb > /workdir/ufiw001-kernel-dtb
           # linux-headers linux-image
           cd ..
           cp linux-*.deb /workdir
+          cp *.deb /workdir
           echo "::set-output name=status::success"
 
       - name: Upload image to Release
