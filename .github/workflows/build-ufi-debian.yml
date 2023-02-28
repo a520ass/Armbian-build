@@ -95,7 +95,6 @@ jobs:
           # kernel
           cp arch/arm64/boot/Image* /workdir
           # linux-headers linux-image
-          cd ..
           cp *.tar.gz /workdir
           echo "::set-output name=status::success"
 
