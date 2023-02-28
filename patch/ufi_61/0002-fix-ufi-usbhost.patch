@@ -1,0 +1,63 @@
+From 506231fec9f4a9918e040725e839a5d091ae15ad Mon Sep 17 00:00:00 2001
+From: a520a <a520ass@hotmail.com>
+Date: Tue, 28 Feb 2023 14:54:14 +0800
+Subject: [PATCH] fix ufi usbhost
+
+---
+ arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi | 24 +++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi b/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
+index 790a9696da9..349b29e1d2c 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
+@@ -28,6 +28,13 @@ gps_mem: gps@8bd00000 {
+ 		};
+ 	};
+ 
++	usb_id: usb-id {
++		compatible = "linux,extcon-usb-gpio";
++		id-gpio = <&msmgpio 110 GPIO_ACTIVE_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&usb_id_default>;
++	};
++
+ 	gpio-keys {
+ 		compatible = "gpio-keys";
+ 
+@@ -115,14 +122,14 @@ &sdhc_1 {
+ };
+ 
+ &usb {
+-	extcon = <&pm8916_usbin>;
+-	dr_mode = "peripheral";
+-
+ 	status = "okay";
++	extcon = <&usb_id>, <&usb_id>;
+ };
+ 
+ &usb_hs_phy {
+-	extcon = <&pm8916_usbin>;
++	v1p8-supply = <&pm8916_l7>;
++	v3p3-supply = <&pm8916_l13>;
++	extcon = <&usb_id>;
+ };
+ 
+ &smd_rpm_regulators {
+@@ -247,4 +254,13 @@ sim_ctrl_default: sim-ctrl-default-state {
+ 		bias-disable;
+ 		output-low;
+ 	};
++
++	usb_id_default: usb-id-default {
++		pins = "gpio110";
++		function = "gpio";
++
++		drive-strength = <8>;
++		input-enable;
++		bias-pull-up;
++	};
+ };
+-- 
+2.34.1
+
