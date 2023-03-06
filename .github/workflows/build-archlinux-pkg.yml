@@ -66,7 +66,7 @@ jobs:
 
       - name: Build Arch Linux Package
         id: build_archlinuxpkg
-        uses: Menci/build-archlinux-package@main
+        uses: a520ass/build-archlinux-package@main
         with:
           docker-image: menci/aur-builder:archlinux
           platform: ${{ matrix.pkgbuild_platform }}
