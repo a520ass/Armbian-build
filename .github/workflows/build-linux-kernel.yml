@@ -66,7 +66,7 @@ jobs:
         run: |
           cd linux/
           ## git apply 
-          for patch in `find ../patch/${{ github.event.inputs.set_linux_patch_version }}/*.patch | LC_ALL=C sort -u`
+          for patch in `find ../patch/${{ github.event.inputs.set_kernel_patch_version }}/*.patch | LC_ALL=C sort -u`
           do
               # detect and remove files which patch will create
               lsdiff -s --strip=1 "${patch}" | grep '^+' | awk '{print $2}' | xargs -I % sh -c 'rm -f %'
@@ -79,7 +79,7 @@ jobs:
               	  echo "<== [F] patch file $patch"	
               fi
           done
-          cp ../patch/${{ github.event.inputs.set_linux_patch_version }}/defconfig arch/arm64/configs/diy_defconfig
+          cp ../patch/${{ github.event.inputs.set_kernel_patch_version }}/defconfig arch/arm64/configs/diy_defconfig
 
       - name: Compile
         id: compile
