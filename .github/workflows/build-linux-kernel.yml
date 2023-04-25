@@ -41,7 +41,7 @@ jobs:
         run: |
           sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
           sudo -E apt-get -qq update
-          sudo -E apt-get -qq install -y binfmt-support qemu-user-static gcc-10-aarch64-linux-gnu kernel-package fakeroot simg2img img2simg mkbootimg bison flex gcc-aarch64-linux-gnu pkg-config libncurses-dev libssl-dev unzip git devscripts
+          sudo -E apt-get -qq install -y binfmt-support qemu-user-static gcc-10-aarch64-linux-gnu kernel-package fakeroot simg2img img2simg mkbootimg bison flex gcc-aarch64-linux-gnu pkg-config libncurses-dev libssl-dev unzip git devscripts rpmbuild
           sudo -E apt-get -qq autoremove --purge
           sudo -E apt-get -qq clean
           sudo timedatectl set-timezone "$TZ"
@@ -61,7 +61,7 @@ jobs:
         run: |
           git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} ${{ env.LINUX_GITURL }} linux
 
-      - name: Patch ufi
+      - name: Patch kernel
         id: patch
         run: |
           cd linux/
@@ -76,7 +76,7 @@ jobs:
               then
                   echo "<== [S] patch file $patch"
               else
-              	  echo "<== [F] patch file $patch"	
+                  echo "<== [F] patch file $patch"
               fi
           done
           cp ../patch/${{ github.event.inputs.set_kernel_patch_version }}/defconfig arch/arm64/configs/diy_defconfig
@@ -95,12 +95,16 @@ jobs:
           make include/config/kernel.release
           echo "kernel release version ==>"
           cat include/config/kernel.release
-          
+
           make targz-pkg -j$(nproc)
           cp *.tar.gz /workdir
           make bindeb-pkg -j$(nproc)
           cd ..
           cp *.deb /workdir
+          cd linux/
+          make binrpm-pkg -j$(nproc)
+          cd ..
+          cp *.rpm /workdir
           echo "::set-output name=status::success"
 
       - name: Upload image to Release
