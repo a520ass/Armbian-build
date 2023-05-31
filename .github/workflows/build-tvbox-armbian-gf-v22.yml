@@ -11,7 +11,7 @@ on:
       set_git_branch:
         description: "master / v22.11 / v22.08"
         required: true
-        default: "master"
+        default: "v23.05"
       set_armbian_branch:
         description: "Branch: edge / current / legacy"
         required: false
@@ -112,7 +112,7 @@ jobs:
           # Compile method and parameter description: https://docs.armbian.com/Developer-Guide_Build-Options
           cd build/
           sudo chmod +x compile.sh
-          sudo ./compile.sh \
+          ./compile.sh \
           BOARD=aml-s9xx-box \
           BRANCH=${{ env.ARMBIAN_BRANCH }} \
           RELEASE=${{ env.ARMBIAN_RELEASE }} \
