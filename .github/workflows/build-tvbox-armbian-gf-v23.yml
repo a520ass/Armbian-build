@@ -1,4 +1,4 @@
-name: Build TVBOX armbian GF MESON64 V22
+name: Build TVBOX armbian GF MESON64 V23
 
 on:
   repository_dispatch:
@@ -9,9 +9,9 @@ on:
         required: true
         default: "a520ass"
       set_git_branch:
-        description: "master / v22.11 / v22.08"
+        description: "main / v23.05"
         required: true
-        default: "v22.11"
+        default: "v23.05"
       set_armbian_branch:
         description: "Branch: edge / current / legacy"
         required: false
@@ -108,7 +108,7 @@ jobs:
           # Compile method and parameter description: https://docs.armbian.com/Developer-Guide_Build-Options
           cd build/
           sudo chmod +x compile.sh
-          sudo ./compile.sh \
+          ./compile.sh build \
           BOARD=aml-s9xx-box \
           BRANCH=${{ env.ARMBIAN_BRANCH }} \
           RELEASE=${{ env.ARMBIAN_RELEASE }} \
@@ -122,7 +122,7 @@ jobs:
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
-          tag: Armbian_Aml_TVBOX_GF_MESON64_V22_${{ env.COMPILE_STARTINGTIME }}
+          tag: Armbian_Aml_TVBOX_GF_MESON64_V23_${{ env.COMPILE_STARTINGTIME }}
           artifacts: build/output/images/*,build/output/debs/*
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
