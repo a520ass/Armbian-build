@@ -24,10 +24,6 @@ on:
         description: "Build Desktop: no / gnome / xfce, etc."
         required: false
         default: "no"
-      set_kernel_only:
-        description: "KERNEL_ONLY: no / yes"
-        required: false
-        default: "no"
       set_kernel_version_patch:
         description: "kernel_version_patch"
         required: false
@@ -118,7 +114,6 @@ jobs:
           RELEASE=${{ env.ARMBIAN_RELEASE }} \
           BUILD_MINIMAL=no \
           ${{ env.ARMBIAN_DESKTOP_STR }} \
-          KERNEL_ONLY=${{ github.event.inputs.set_kernel_only }} \
           KERNEL_CONFIGURE=no \
           COMPRESS_OUTPUTIMAGE=sha,gz
           echo "::set-output name=status::success"
