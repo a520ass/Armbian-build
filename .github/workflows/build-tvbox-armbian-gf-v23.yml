@@ -116,6 +116,8 @@ jobs:
           ${{ env.ARMBIAN_DESKTOP_STR }} \
           KERNEL_CONFIGURE=no \
           COMPRESS_OUTPUTIMAGE=sha,gz
+          cd output/images/
+          gzip *.img
           echo "::set-output name=status::success"
 
       - name: Upload Armbian image to Release
