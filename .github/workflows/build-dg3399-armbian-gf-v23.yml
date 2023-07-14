@@ -102,7 +102,7 @@ jobs:
           mkdir -p userpatches/u-boot/u-boot-rockchip64
           ## git apply
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/kernel/*.patch userpatches/kernel/rockchip64-${{ env.ARMBIAN_BRANCH }}
-          cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/u-boot/*.patch userpatches/kernel/u-boot-rockchip64
+          cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/u-boot/*.patch userpatches/u-boot/u-boot-rockchip64
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/dg3399.conf config/boards
 
       - name: Compile Armbian [ Board is ROCKCHIP64 DG3399 / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
