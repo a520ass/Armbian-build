@@ -127,7 +127,7 @@ jobs:
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
-          tag: Armbian_Aml_DG3399_GF_ROCKCHIP64_V23_${{ env.COMPILE_STARTINGTIME }}
+          tag: Armbian_DG3399_GF_ROCKCHIP64_V23_${{ env.COMPILE_STARTINGTIME }}
           artifacts: build/output/images/*,build/output/debs/*
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
