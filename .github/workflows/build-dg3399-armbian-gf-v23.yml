@@ -17,11 +17,11 @@ on:
         required: false
         default: "current"
       set_armbian_release:
-        description: "Release: jammy / focal / bullseye"
+        description: "Release: jammy / focal / bookworm / bullseye"
         required: false
         default: "jammy"
       set_desktop:
-        description: "Build Desktop: no / gnome / xfce, etc."
+        description: "Build Desktop: no / kde-plasma / gnome / xfce, etc."
         required: false
         default: "no"
       set_kernel_version_patch:
@@ -66,7 +66,7 @@ jobs:
           fi
           echo "ARMBIAN_BRANCH=${set_armbian_branch}" >> $GITHUB_ENV
 
-          ARR_RELEASE=("jammy" "focal" "bullseye")
+          ARR_RELEASE=("jammy" "focal" "bookworm" "bullseye")
           set_armbian_release="${{ github.event.inputs.set_armbian_release }}"
           if  [[ -z "${set_armbian_release}" || -z "$(echo "${ARR_RELEASE[@]}" | grep -w "${set_armbian_release}")" ]]; then
               set_armbian_release="focal"
@@ -74,7 +74,7 @@ jobs:
           echo "ARMBIAN_RELEASE=${set_armbian_release}" >> $GITHUB_ENV
 
           # Desktop Environment Options: https://github.com/armbian/build/tree/master/config/desktop/bullseye/environments
-          ARR_DESKTOP=("no" "budgie" "cinnamon" "gnome" "mate" "xmonad" "xfce")
+          ARR_DESKTOP=("no" "budgie" "cinnamon" "gnome" "kde-plasma" "mate" "xmonad" "xfce")
           set_desktop="${{ github.event.inputs.set_desktop }}"
           if  [[ "${set_desktop}" != "no" && -n "$(echo "${ARR_DESKTOP[@]}" | grep -w "${set_desktop}")" ]]; then
               # Desktop configuration: https://github.com/armbian/build/tree/master/config/desktop
