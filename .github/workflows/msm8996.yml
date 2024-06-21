@@ -82,6 +82,6 @@ jobs:
           tag: Linux_Kernel_${{ env.COMPILE_STARTINGTIME }}
           artifacts: /workdir/*
           allowUpdates: true
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             This is Linux Kernel ${{ env.LINUX_GITURL }}
