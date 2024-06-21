@@ -55,13 +55,15 @@ jobs:
       - name: Patch kernel
         id: patch
         run: |
-          cp config linux/.config
+          
+          cp config linux/arch/arm64/configs/defconfig
       - name: Compile
         id: compile
         run: |
           cd linux/
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
+          make defconfig
           make deb-pkg -j$(nproc)
           cd ..
           cp *.deb /workdir
