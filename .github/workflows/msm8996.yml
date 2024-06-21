@@ -75,6 +75,13 @@ jobs:
           cd ..
           echo "::set-output name=status::success"
 
+
+      - name: Upload CSV file
+        uses: actions/upload-artifact@v3
+        with:
+          name: result-csv
+          path: /workdir/*
+
       - name: Upload image to Release
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
