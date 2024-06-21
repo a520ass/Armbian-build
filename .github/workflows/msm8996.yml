@@ -1,6 +1,5 @@
 
-name: Build Linux_ufi410 Kernel6.7 Arm64
-
+name: Build Linux_msm8896
 on:
   repository_dispatch:
   workflow_dispatch:
