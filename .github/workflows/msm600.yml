@@ -41,7 +41,7 @@ jobs:
         run: |
           sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
           sudo -E apt-get -qq update
-          sudo -E apt-get -qq install -y binfmt-support qemu-user-static  kernel-package fakeroot simg2img img2simg mkbootimg bison libelf-dev flex gcc-aarch64-linux-gnu pkg-config gcc-arm-linux-gnu libncurses-dev libssl-dev unzip git devscripts debhelper
+          sudo -E apt-get -qq install -y binfmt-support qemu-user-static  kernel-package fakeroot simg2img img2simg mkbootimg bison libelf-dev flex gcc-aarch64-linux-gnu pkg-config gcc-arm-linux-gnueabi libncurses-dev libssl-dev unzip git devscripts debhelper
           sudo -E apt-get -qq autoremove --purge
           sudo -E apt-get -qq clean
           sudo timedatectl set-timezone "$TZ"
@@ -61,7 +61,7 @@ jobs:
         id: compile
         run: |
           cd linux/
-          export CROSS_COMPILE=arm-linux-gnu-
+          export CROSS_COMPILE=arm-linux-gnueabi-
           export ARCH=arm
           make qcom_apq8064_defconfig
           make deb-pkg -j$(nproc)
