@@ -59,16 +59,18 @@ jobs:
           
           cp cjk_config linux/arch/arm64/configs/msm8996_defconfig
           cd linux
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
+          make clean
+          make mrproper
           git apply cjktty-6.9.patch
+          git add .
           cd ..
       - name: Compile
         id: compile
         run: |
           cd linux
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          export ARCH=arm64
-          make clean
-          make mrproper
+
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
           make msm8996_defconfig
