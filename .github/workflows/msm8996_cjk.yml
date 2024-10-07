@@ -56,6 +56,7 @@ jobs:
         id: patch
         run: |
           cp  cjktty-6.9.patch linux/cjktty-6.9.patch
+          wget https://raw.githubusercontent.com/zhmars/cjktty-patches/refs/heads/master/cjktty-add-cjk32x32-font-data.patch
           
           cp cjk_config linux/arch/arm64/configs/msm8996_defconfig
           cd linux
@@ -64,6 +65,7 @@ jobs:
           make clean
           make mrproper
           git apply cjktty-6.9.patch
+          git apply cjktty-add-cjk32x32-font-data.patch
           git add .
           cd ..
       - name: Compile
