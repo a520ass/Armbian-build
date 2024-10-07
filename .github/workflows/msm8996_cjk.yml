@@ -57,7 +57,7 @@ jobs:
         run: |
           cp  cjktty-6.9.patch linux/cjktty-6.9.patch
           
-          cp config linux/arch/arm64/configs/msm8996_defconfig
+          cp cjk_config linux/arch/arm64/configs/msm8996_defconfig
           cd linux
           git apply cjktty-6.9.patch
       - name: Compile
@@ -78,10 +78,10 @@ jobs:
           echo "::set-output name=status::success"
 
 
-      - name: Upload CSV file
+      - name: Upload file
         uses: actions/upload-artifact@v3
         with:
-          name: result-csv
+          name: debian-linux
           path: /workdir/*
 
       - name: Upload image to Release
