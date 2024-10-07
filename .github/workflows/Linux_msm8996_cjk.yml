@@ -1,0 +1,95 @@
+
+name: Build Linux_msm8996_cjk
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      set_git_repo:
+        description: "repo"
+        required: true
+        default: "AK201314/linux"
+        #default: "185264646/linux"
+      set_git_branch:
+        description: "branch"
+        required: true
+        default: "msm8916/6.7-rc4"
+        #default: "old/msm8916/5.18"
+      set_kernel_patch_version:
+        description: "kernel_patch_version"
+        required: true
+        default: "msm8916-6.8"
+      set_kernel_localversion:
+        description: "kernel_localversion"
+        required: true
+        default: "-ak201314-compile"
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install -y binfmt-support qemu-user-static  kernel-package fakeroot simg2img img2simg mkbootimg bison libelf-dev flex gcc-aarch64-linux-gnu pkg-config libncurses-dev libssl-dev unzip git devscripts debhelper
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+
+      - name: Download source code
+        id: down
+        run: |
+          git clone --depth 1 https://gitlab.com/kschen202115/linux-6-11-rc-6.git linux
+      - name: Patch kernel
+        id: patch
+        run: |
+          
+          
+          cp config linux/arch/arm64/configs/msm8996_defconfig_cjk
+      - name: Compile
+        id: compile
+        run: |
+          cd linux/
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
+          make msm8996_defconfig
+          make deb-pkg -j$(nproc)
+          cd ..
+          cp *.deb /workdir
+          cp linux/arch/arm64/boot/Image.gz /workdir
+          tar -czf /workdir/msm8996_dtb.tar.gz linux/arch/arm64/boot/dts/qcom/*capricorn*.dtb
+          find ./ -type f \( ! -name "*.ko" -a ! -name "modules.*" \) -exec rm -f {} \;
+          cd linux/
+          tar -czf /workdir/modules.tar.gz ./*
+          cd ..
+          echo "::set-output name=status::success"
+
+
+      - name: Upload CSV file
+        uses: actions/upload-artifact@v3
+        with:
+          name: result-csv
+          path: /workdir/*
+
+      - name: Upload image to Release
+        uses: ncipollo/release-action@main
+        if: steps.compile.outputs.status == 'success' && !cancelled()
+        with:
+          tag: Linux_Kernel_${{ env.COMPILE_STARTINGTIME }}
+          artifacts: /workdir/*
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            This is Linux Kernel ${{ env.LINUX_GITURL }}
