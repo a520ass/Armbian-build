@@ -55,12 +55,14 @@ jobs:
       - name: Patch kernel
         id: patch
         run: |
+          cp  cjktty-6.9.patch linux/cjktty-6.9.patch
           
           cp config linux/arch/arm64/configs/msm8996_defconfig
+          cd linux
+          git apply cjktty-6.9.patch
       - name: Compile
         id: compile
         run: |
-          cd linux/
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
           make msm8996_defconfig
