@@ -56,10 +56,11 @@ jobs:
         id: patch
         run: |
           cp  cjktty-6.9.patch linux/cjktty-6.9.patch
-          wget https://raw.githubusercontent.com/zhmars/cjktty-patches/refs/heads/master/cjktty-add-cjk32x32-font-data.patch
+          
           
           cp cjk_config linux/arch/arm64/configs/msm8996_defconfig
           cd linux
+          wget https://raw.githubusercontent.com/zhmars/cjktty-patches/refs/heads/master/cjktty-add-cjk32x32-font-data.patch
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
           make clean
