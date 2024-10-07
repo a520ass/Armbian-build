@@ -1,5 +1,5 @@
 
-name: Build Linux_msm8896
+name: Build Linux_msm8996_cjk
 on:
   repository_dispatch:
   workflow_dispatch:
