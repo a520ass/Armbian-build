@@ -67,6 +67,10 @@ jobs:
           cd linux
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
+          make clean
+          make mrproper
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
           make msm8996_defconfig
           make deb-pkg -j$(nproc)
           cd ..
