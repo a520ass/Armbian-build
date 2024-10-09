@@ -51,21 +51,21 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 https://gitlab.com/kschen202115/msm8996-6.9.git linux
+          git clone -b 6.7.5/main --depth 1 https://github.com/msm8953-mainline/linux.git linux
       - name: Patch kernel
         id: patch
         run: |
-          cp  cjktty-6.9.patch linux/cjktty-6.9.patch
+          cp  cjktty-6.7.patch linux/cjktty-6.7.patch
           
           
-          cp cjk_config linux/arch/arm64/configs/msm8996_defconfig
+          cp cjk_config linux/arch/arm64/configs/defconfig
           cd linux
           wget https://raw.githubusercontent.com/zhmars/cjktty-patches/refs/heads/master/cjktty-add-cjk32x32-font-data.patch
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
           make clean
           make mrproper
-          git apply cjktty-6.9.patch
+          git apply cjktty-6.7.patch
           git apply cjktty-add-cjk32x32-font-data.patch
           git add .
           cd ..
@@ -76,12 +76,12 @@ jobs:
 
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
-          make msm8996_defconfig
+          make defconfig
           make deb-pkg -j$(nproc)
           cd ..
           cp *.deb /workdir
           cp linux/arch/arm64/boot/Image.gz /workdir
-          tar -czf /workdir/msm8996_dtb.tar.gz linux/arch/arm64/boot/dts/qcom/*capricorn*.dtb
+          tar -czf /workdir/msm8996_dtb.tar.gz linux/arch/arm64/boot/dts/qcom/*mido*.dtb
           find ./ -type f \( ! -name "*.ko" -a ! -name "modules.*" \) -exec rm -f {} \;
           cd linux/
           tar -czf /workdir/modules.tar.gz ./*
