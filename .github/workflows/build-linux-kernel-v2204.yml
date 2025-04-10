@@ -114,6 +114,6 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           body: |
             This is Linux Kernel ${{ env.LINUX_GITURL }}
-			git_branch: ${{ github.event.inputs.set_git_branch }}
-			kernel_patch_version: ${{ github.event.inputs.set_kernel_patch_version }}
-			kernel_localversion: ${{ github.event.inputs.set_kernel_localversion }}
+            git_branch: ${{ github.event.inputs.set_git_branch }}
+            kernel_patch_version: ${{ github.event.inputs.set_kernel_patch_version }}
+            kernel_localversion: ${{ github.event.inputs.set_kernel_localversion }}
