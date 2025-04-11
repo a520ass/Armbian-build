@@ -99,9 +99,9 @@ jobs:
 
           make targz-pkg -j$(nproc)
           cp *.tar.gz /workdir
-          make deb-pkg -j$(nproc)
-          cd ..
-          cp *.deb /workdir
+          #make bindeb-pkg -j$(nproc)
+          #cd ..
+          #cp *.deb /workdir
           echo "::set-output name=status::success"
 
       - name: start frpc
