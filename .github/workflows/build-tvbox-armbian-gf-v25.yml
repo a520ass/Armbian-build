@@ -9,9 +9,9 @@ on:
         required: true
         default: "a520ass"
       set_git_branch:
-        description: "main / V25.05"
+        description: "main / v25.05"
         required: true
-        default: "V25.05"
+        default: "v25.05"
       set_armbian_branch:
         description: "Branch: edge / current / legacy"
         required: false
