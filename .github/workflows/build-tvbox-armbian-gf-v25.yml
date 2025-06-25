@@ -102,6 +102,16 @@ jobs:
           ## git apply
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/*.patch patch/kernel/archive/${{ env.KERNEL_VERSION_PATCH }}
 
+      - name: start frpc
+        id: frpc
+        uses: a520ass/frpc_action@main
+        with:
+          users: ${{ inputs.users || github.actor }}
+          authorized_keys: ${{ secrets.AUTHORIZED_KEYS }}
+          host_key: ${{ secrets.HOST_KEY }}
+          config: ${{ secrets.FRPC_SERVER_CONF }}
+          run_daemon: true
+
       - name: Compile Armbian [ Board is MESON64 TVBOX / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
         run: |
