@@ -125,7 +125,7 @@ jobs:
           BUILD_MINIMAL=no \
           ${{ env.ARMBIAN_DESKTOP_STR }} \
           KERNEL_CONFIGURE=no \
-          COMPRESS_OUTPUTIMAGE=sha,gz
+          COMPRESS_OUTPUTIMAGE=sha,xz
           cd output/images/
           gzip *.img
           echo "::set-output name=status::success"
