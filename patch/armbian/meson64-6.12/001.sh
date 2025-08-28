@@ -12,7 +12,8 @@ configs=(
 )
 
 # 指定内核配置文件路径，默认为当前目录下的 .config
-CONFIG_FILE="${1:-.config}"
+##CONFIG_FILE="${1:-.config}"
+CONFIG_FILE="config/kernel/linux-meson64-current.config"
 
 # 检查配置文件是否存在
 if [ ! -f "$CONFIG_FILE" ]; then

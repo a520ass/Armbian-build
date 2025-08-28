@@ -5,7 +5,7 @@ echo "diysh当前目录:$(pwd)"
 for shshell in `find ../patch/armbian/${1}/*.sh | LC_ALL=C sort -u`
 do
 	chmod +x $shshell
-	$shshell "config/kernel/linux-meson64-current.config"
+	$shshell "${1}"
 	if [ $? -eq 0 ]
 	then
 		echo "<== [S] shshell file $shshell"
