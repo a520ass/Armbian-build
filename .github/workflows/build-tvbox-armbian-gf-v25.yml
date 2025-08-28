@@ -131,7 +131,7 @@ jobs:
           KERNEL_CONFIGURE=no \
           COMPRESS_OUTPUTIMAGE=sha,xz
           cd output/images/
-          gzip *.img
+          find . -maxdepth 1 -name "*.img" -exec gzip {} \;
           echo "::set-output name=status::success"
 
       - name: Upload Armbian image to Release
