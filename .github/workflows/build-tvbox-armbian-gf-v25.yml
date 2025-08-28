@@ -134,6 +134,20 @@ jobs:
           find . -maxdepth 1 -name "*.img" -exec gzip {} \;
           echo "::set-output name=status::success"
 
+      - name: sendMsg
+        id: sendMsg
+        if: failure()
+        run: |
+          wget --no-check-certificate -q -O - "http://www.pushplus.plus/send?token=${{ secrets.PUSHPLUS_TOKEN }}&title=BUILD_MSG&content=BUILD_ERROR&template=html"
+          touch /tmp/hf.lock
+          lock_file=/tmp/hf.lock
+          # 循环等待直到文件不存在
+          while [ -f "$lock_file" ]; do
+              sleep 30
+              echo "/tmp/hf.lock 文件存在,继续等待..."
+          done
+          echo "继续执行后续操作..."
+
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
