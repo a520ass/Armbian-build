@@ -103,6 +103,8 @@ jobs:
           ## mkdir -p userpatches/kernel/meson64-${{ env.ARMBIAN_BRANCH }}
           ## git apply
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/*.patch patch/kernel/archive/${{ env.KERNEL_VERSION_PATCH }}
+          ## diysh
+          chmod +x ../patch/armbian/diy.sh && ../patch/armbian/diy.sh ${{ env.KERNEL_VERSION_PATCH }}
 
       - name: start frpc
         id: frpc
