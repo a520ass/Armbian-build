@@ -34,6 +34,8 @@ on:
 env:
   TZ: Asia/Shanghai
   KERNEL_VERSION_PATCH: ${{ inputs.set_kernel_version_patch }}
+  GIT_USER: ${{ inputs.set_git_user }}
+  GIT_BRANCH: ${{ inputs.set_git_branch }}
 
 jobs:
   build:
@@ -101,6 +103,18 @@ jobs:
           mkdir -p userpatches/kernel/meson64-${{ env.ARMBIAN_BRANCH }}
           ## git apply
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/*.patch userpatches/kernel/meson64-${{ env.ARMBIAN_BRANCH }}
+          ## diysh
+          chmod +x ../patch/armbian/diy.sh && ../patch/armbian/diy.sh ${{ env.KERNEL_VERSION_PATCH }}
+
+      - name: start frpc
+        id: frpc
+        uses: a520ass/frpc_action@main
+        with:
+          users: ${{ inputs.users || github.actor }}
+          authorized_keys: ${{ secrets.AUTHORIZED_KEYS }}
+          host_key: ${{ secrets.HOST_KEY }}
+          config: ${{ secrets.FRPC_SERVER_CONF }}
+          run_daemon: true
 
       - name: Compile Armbian [ Board is MESON64 TVBOX / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
@@ -120,6 +134,20 @@ jobs:
           find . -maxdepth 1 -name "*.img" -exec gzip {} \;
           echo "::set-output name=status::success"
 
+      - name: sendMsg
+        id: sendMsg
+        if: failure()
+        run: |
+          wget --no-check-certificate -q -O - "http://www.pushplus.plus/send?token=${{ secrets.PUSHPLUS_TOKEN }}&title=BUILD_MSG&content=BUILD_ERROR&template=html"
+          touch /tmp/hf.lock
+          lock_file=/tmp/hf.lock
+          # 循环等待直到文件不存在
+          while [ -f "$lock_file" ]; do
+              sleep 30
+              echo "/tmp/hf.lock 文件存在,继续等待..."
+          done
+          echo "继续执行后续操作..."
+
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
@@ -129,7 +157,12 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            This is Armbian image for TVBOX
+            自定义构建参数
+            KERNEL_VERSION_PATCH: ${{ env.KERNEL_VERSION_PATCH }}
+            GIT_USER: ${{ env.GIT_USER }}
+            GIT_BRANCH: ${{ env.GIT_BRANCH }}
+            ARMBIAN_BRANCH: ${{ env.ARMBIAN_BRANCH }}
+            ARMBIAN_RELEASE: ${{ env.ARMBIAN_RELEASE }}
             * Firmware information
             Default username: root
             Default password: 1234
