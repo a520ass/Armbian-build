@@ -34,6 +34,8 @@ on:
 env:
   TZ: Asia/Shanghai
   KERNEL_VERSION_PATCH: ${{ inputs.set_kernel_version_patch }}
+  GIT_USER: ${{ inputs.set_git_user }}
+  GIT_BRANCH: ${{ inputs.set_git_branch }}
 
 jobs:
   build:
@@ -104,7 +106,17 @@ jobs:
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/kernel/*.patch userpatches/kernel/rockchip64-${{ env.ARMBIAN_BRANCH }}
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/u-boot/*.patch userpatches/u-boot/u-boot-rockchip64
           cp ../patch/armbian/${{ env.KERNEL_VERSION_PATCH }}/dg3399.conf config/boards
-
+      
+      - name: start frpc
+        id: frpc
+        uses: a520ass/frpc_action@main
+        with:
+          users: ${{ inputs.users || github.actor }}
+          authorized_keys: ${{ secrets.AUTHORIZED_KEYS }}
+          host_key: ${{ secrets.HOST_KEY }}
+          config: ${{ secrets.FRPC_SERVER_CONF }}
+          run_daemon: true
+      
       - name: Compile Armbian [ Board is ROCKCHIP64 DG3399 / Edition is ${{ env.ARMBIAN_DESKTOP_OPT }} ]
         id: compile
         run: |
@@ -120,9 +132,29 @@ jobs:
           KERNEL_CONFIGURE=no \
           COMPRESS_OUTPUTIMAGE=sha,gz
           cd output/images/
-          gzip *.img
+          find . -maxdepth 1 -name "*.img" -exec gzip {} \;
           echo "::set-output name=status::success"
+      
+      - name: sendMsg
+        id: sendMsg
+        if: failure()
+        run: |
+          wget --no-check-certificate -q -O - "http://www.pushplus.plus/send?token=${{ secrets.PUSHPLUS_TOKEN }}&title=BUILD_MSG&content=BUILD_ERROR&template=html"
+          touch /tmp/hf.lock
+          lock_file=/tmp/hf.lock
+          count=0
+          max_display=10
 
+          # 循环等待直到文件不存在
+          while [ -f "$lock_file" ]; do
+              sleep 30
+              if [ $count -lt $max_display ]; then
+                  echo "/tmp/hf.lock 文件存在,继续等待... ($((count+1))/$max_display)"
+                  count=$((count+1))
+              fi
+          done
+          echo "继续执行后续操作..."
+      
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
@@ -132,7 +164,12 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            This is Armbian image for DG3399
+            自定义构建参数
+            KERNEL_VERSION_PATCH: ${{ env.KERNEL_VERSION_PATCH }}
+            GIT_USER: ${{ env.GIT_USER }}
+            GIT_BRANCH: ${{ env.GIT_BRANCH }}
+            ARMBIAN_BRANCH: ${{ env.ARMBIAN_BRANCH }}
+            ARMBIAN_RELEASE: ${{ env.ARMBIAN_RELEASE }}
             * Firmware information
             Default username: root
             Default password: 1234

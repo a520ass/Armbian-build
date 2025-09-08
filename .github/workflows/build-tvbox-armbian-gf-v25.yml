@@ -141,10 +141,16 @@ jobs:
           wget --no-check-certificate -q -O - "http://www.pushplus.plus/send?token=${{ secrets.PUSHPLUS_TOKEN }}&title=BUILD_MSG&content=BUILD_ERROR&template=html"
           touch /tmp/hf.lock
           lock_file=/tmp/hf.lock
+          count=0
+          max_display=10
+
           # 循环等待直到文件不存在
           while [ -f "$lock_file" ]; do
               sleep 30
-              echo "/tmp/hf.lock 文件存在,继续等待..."
+              if [ $count -lt $max_display ]; then
+                  echo "/tmp/hf.lock 文件存在,继续等待... ($((count+1))/$max_display)"
+                  count=$((count+1))
+              fi
           done
           echo "继续执行后续操作..."
 
