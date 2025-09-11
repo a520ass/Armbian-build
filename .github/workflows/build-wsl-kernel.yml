@@ -1,0 +1,103 @@
+
+name: Build WSL Kernel
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      set_git_repo:
+        description: "repo"
+        required: true
+        default: "microsoft/WSL2-Linux-Kernel"
+      set_git_branch:
+        description: "branch"
+        required: true
+        default: "linux-msft-wsl-6.6.y"
+      set_kernel_patch_version:
+        description: "kernel_patch_version"
+        required: true
+        default: "wsl-6.6"
+  #schedule:
+    #- cron: "0 17 * * 0"
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          ##sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install -y build-essential flex bison dwarves libssl-dev libelf-dev cpio qemu-utils bc
+          ##sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "COMPILE_STARTINGTIME=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
+
+          set_git_url="https://github.com/${{ github.event.inputs.set_git_repo }}.git"
+          set_git_repo="${{ github.event.inputs.set_git_repo }}"
+          if  [[ "linux" = "${set_git_repo}" ]]; then
+              set_git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+          fi
+          echo "LINUX_GITURL=${set_git_url}" >> $GITHUB_ENV
+
+      - name: Download source code
+        id: down
+        run: |
+          git clone --depth 1 -b ${{ github.event.inputs.set_git_branch }} ${{ env.LINUX_GITURL }} linux
+
+      - name: Patch kernel
+        id: patch
+        run: |
+          cd linux/
+          mv Microsoft/config-wsl Microsoft/config-wsl.old
+          cp -f ../patch/${{ github.event.inputs.set_kernel_patch_version }}/config-wsl Microsoft/config-wsl
+
+      - name: Compile
+        id: compile
+        run: |
+          cd linux/
+          make include/config/kernel.release
+          echo "kernel release version ==>"
+          cat include/config/kernel.release
+
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) KCONFIG_CONFIG=Microsoft/config-wsl && make INSTALL_MOD_PATH="$PWD/modules" modules_install
+          sudo ./Microsoft/scripts/gen_modules_vhdx.sh "$PWD/modules" $(make -s kernelrelease) modules.vhdx
+          tar -czf /workdir/wsl2_kernel.tar.gz vmlinux modules.vhdx
+          echo "::set-output name=status::success"
+
+      - name: start frpc
+        if: failure()
+        uses: a520ass/frpc_action@main
+        with:
+          users: ${{ inputs.users || github.actor }}
+          authorized_keys: ${{ secrets.AUTHORIZED_KEYS }}
+          host_key: ${{ secrets.HOST_KEY }}
+          config: ${{ secrets.FRPC_SERVER_CONF }}
+
+      - name: Upload image to Release
+        uses: ncipollo/release-action@main
+        if: steps.compile.outputs.status == 'success' && !cancelled()
+        with:
+          tag: Linux_Kernel_${{ env.COMPILE_STARTINGTIME }}
+          artifacts: /workdir/*
+          allowUpdates: true
+          token: ${{ secrets.GH_TOKEN }}
+          body: |
+            This is Linux Kernel ${{ env.LINUX_GITURL }}
+            git_branch: ${{ github.event.inputs.set_git_branch }}
+            kernel_patch_version: ${{ github.event.inputs.set_kernel_patch_version }}
+            kernel_localversion: ${{ github.event.inputs.set_kernel_localversion }}
