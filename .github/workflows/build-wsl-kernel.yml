@@ -69,10 +69,6 @@ jobs:
         id: compile
         run: |
           cd linux/
-          make include/config/kernel.release
-          echo "kernel release version ==>"
-          cat include/config/kernel.release
-
           echo -e "$(nproc) thread compile"
           make -j$(nproc) KCONFIG_CONFIG=Microsoft/config-wsl && make INSTALL_MOD_PATH="$PWD/modules" modules_install
           sudo ./Microsoft/scripts/gen_modules_vhdx.sh "$PWD/modules" $(make -s kernelrelease) modules.vhdx
