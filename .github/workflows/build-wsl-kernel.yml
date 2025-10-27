@@ -32,6 +32,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+
       - name: Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
