@@ -10,8 +10,8 @@ on:
         default: 'https://github.com/a520ass/alarm-pkg.git'
       repo_branch:
         description: 'REPO BRANCH'
-        required: true
-        default: 'main'
+        required: false
+        default: ''
       pkgbuild_directory:
         description: 'pkgbuild_directory'
         required: false
@@ -58,7 +58,11 @@ jobs:
       - name: Download source code
         id: down
         run: |
-          git clone --depth 1 -b $REPO_BRANCH $REPO_URL archpkgsrc
+          if [ -z "$REPO_BRANCH" ]; then
+            git clone --depth 1 "$REPO_URL" archpkgsrc
+          else
+            git clone --depth 1 -b "$REPO_BRANCH" "$REPO_URL" archpkgsrc
+          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
