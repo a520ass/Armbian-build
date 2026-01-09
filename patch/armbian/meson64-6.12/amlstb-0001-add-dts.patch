@@ -282,7 +282,7 @@ new file mode 100644
 index 000000000..b014a5446
 --- /dev/null
 +++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905l3-b860av21u.dts
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,52 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (c) 2016 Endless Computers, Inc.
@@ -322,6 +322,12 @@ index 000000000..b014a5446
 +
 +&hdmi_tx {
 +	status = "disabled";
++};
++
++/* SD card */
++&sd_emmc_b {
++	status = "okay";
++	max-frequency = <25000000>;
 +};
 +
 +/* eMMC */
