@@ -8,19 +8,19 @@ on:
       set_git_repo:
         description: "repo"
         required: true
-        default: "msm8916-mainline/linux"
+        default: "msm89x7-mainline/linux"
       set_git_branch:
         description: "branch"
         required: true
-        default: "v6.12.1-msm8916"
+        default: "msm89x7/6.19.5"
       set_kernel_patch_version:
         description: "kernel_patch_version"
         required: true
-        default: "msm8916-6.6"
+        default: "msm8937-6.19"
       set_kernel_localversion:
         description: "kernel_localversion"
         required: true
-        default: "-msm8916"
+        default: "-msm8937"
   #schedule:
     #- cron: "0 17 * * 0"
 
